@@ -1,0 +1,5 @@
+# Dieses Projekt ist eigenstaendig. Die Datei sorgt dafuer, dass pnpm
+# `atelier-64` als eigenen Workspace-Root behandelt, statt im Elternverzeichnis
+# ein `pnpm-workspace.yaml` zu finden und `pnpm install` dort wirkungslos
+# verpuffen zu lassen.
+packages: []

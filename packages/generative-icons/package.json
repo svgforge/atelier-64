@@ -1,0 +1,35 @@
+{
+  "name": "@svgforge/generative-icons",
+  "version": "0.1.0",
+  "description": "Procedural SVG icon art from a seeded PRNG: deterministic math, no model. Pick a seed, or roll a fresh one. Pure ESM, zero dependencies, runs in the browser and in Node.",
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "LICENSE",
+    "README.md",
+    "icon.svg"
+  ],
+  "keywords": [
+    "svg",
+    "icons",
+    "icon-set",
+    "sprite",
+    "procedural",
+    "generative-art",
+    "seed",
+    "prng",
+    "browser"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

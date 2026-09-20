@@ -1,0 +1,22 @@
+# Platform workspace scratch
+/WORKX
+
+# Dependencies
+node_modules/
+
+# Build outputs — generated, never committed
+/.output/
+/.vercel/
+/.wrangler/
+/.tanstack/
+/dist/
+/build/
+
+# Platform builder documentation — stays local
+/AGENTS.md
+/.grok/skills/
+/.grok/references/
+
+# Platform runtime artefacts
+/.grok/preview.log
+/.grok/status

@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Atelier 64",
+      "hasCanvas": false,
+      "bodyTextLen": 1424,
+      "bodyTextHash": "ed53ccc9487bf2dc288ebf701321e87479610224b450edbcc5c9e4b44d7fe0bd",
+      "bodyTextPrefix": "SVG SYMBOL SPRITE Atelier 64 Two hundred 64×64 marks, each paint",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Atelier 64",
+      "hasCanvas": false,
+      "bodyTextLen": 1424,
+      "bodyTextHash": "ed53ccc9487bf2dc288ebf701321e87479610224b450edbcc5c9e4b44d7fe0bd",
+      "bodyTextPrefix": "SVG SYMBOL SPRITE Atelier 64 Two hundred 64×64 marks, each paint",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
