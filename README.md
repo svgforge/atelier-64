@@ -71,11 +71,10 @@ Installiert werden muss dafür nichts.
 
 ### Der Python-Generator ist nur noch Referenz
 
-`scripts/generate_icon_sprite.py` funktioniert weiterhin und schreibt nach
-`public/icons.svg` + `public/icons.json`, wird von der App aber **nicht mehr
-benutzt**. Ebenso sind `public/generate_icon_sprite.py` und
-`src/data/icons.json` Altbestand. Diese Dateien kannst du löschen, sobald du sie
-nicht mehr als Vergleich brauchst — die App läuft ohne sie.
+Der Python-Generator ist aus dem Repo entfernt. Diese README beschreibt den
+JS-Generator; wer das Python-Original weiterhin benutzen möchte, findet es im
+Archiv (`svgforge-workspace/WORKX`) und in den früheren Versionen dieses
+Repos.
 
 ---
 
@@ -246,10 +245,7 @@ Bedeutung.
 ```
 public/
   favicon.svg, og.jpg        # Branding
-  icons.svg, icons.json      # Altbestand: vom Python-Generator, ungenutzt
-  generate_icon_sprite.py    # Altbestand: Python-Generator, ungenutzt
 scripts/
-  generate_icon_sprite.py    # Altbestand: Python-Generator, ungenutzt
   browser-smoke.mjs          # Browser-Render-Check
   preview.mjs                # gebautes Ergebnis auf :8081 ausliefern
   with-app-env.mjs           # startet Vite mit den App-Env-Variablen
