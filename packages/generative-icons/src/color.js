@@ -9,6 +9,8 @@ export const HARMONIES = [
   "square",
   "monochromatic",
   "compound",
+  "achromatic",
+  "duotone",
 ];
 
 export function clamp(v, lo = 0.0, hi = 1.0) {
@@ -72,6 +74,8 @@ export function huesFor(scheme, h) {
     case "square":
       return [h, h + 90, h + 180, h + 270];
     case "monochromatic":
+    case "achromatic":
+    case "duotone":
       return [h];
     case "compound":
       return [h - 30, h, h + 150, h + 180];
@@ -87,15 +91,20 @@ export function huesFor(scheme, h) {
  * a contrasting accent, a light highlight and a near-black ink for strokes.
  */
 export function makePalette(rng, hue, scheme) {
+  const achromatic = scheme === "achromatic";
+  const duotone = scheme === "duotone";
   const hues = huesFor(scheme, hue).map(wrapHue);
   let satBase = rng.uniform(0.48, 0.74);
   if (scheme === "monochromatic") satBase = rng.uniform(0.38, 0.62);
+  if (achromatic) satBase = 0; // nur dort: entfaerben
 
   const pickH = (i) => hues[i % hues.length] + rng.uniform(-3.5, 3.5);
 
   const col = (i, sMul, l, sFloor = 0.12) => {
-    const s = clamp(satBase * sMul + rng.uniform(-0.04, 0.04), sFloor, 0.86);
-    return hslToHex(pickH(i), s, clamp(l + rng.uniform(-0.03, 0.03)));
+    // achromatisch: alles grau. duotone: genau der Akzent traegt Farbe.
+    const colored = achromatic ? false : duotone ? i !== 0 : true;
+    const s = colored ? clamp(satBase * sMul + rng.uniform(-0.04, 0.04), sFloor, 0.86) : 0;
+    return hslToHex(colored ? pickH(i) : hues[0], s, clamp(l + rng.uniform(-0.03, 0.03)));
   };
 
   const plate = col(0, 0.55, rng.uniform(0.1, 0.18), 0.18);

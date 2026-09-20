@@ -94,9 +94,11 @@ export function renderIcon(index, masterSeed, size = SIZE, catalogue = DEFAULT_C
   resolveSize(size);
   const uid = `icon-${String(index).padStart(3, "0")}`;
   const rng = createRng((masterSeed * 10007 + index * 104729) & MAX_SEED);
-  // Style, harmony and plate come from the index, so they stay put across
-  // seeds; only the geometry inside a motif is drawn from the PRNG.
-  const hue = (index * GOLDEN_ANGLE) % 360;
+
+  // Style, harmony and plate are picked positionally from the catalogue this
+  // set was created with — for a seeded arrangement that catalogue arrives
+  // already reshuffled once per set (see the shuffle in generateSprite).
+  const hue = ((catalogue.hueBase ?? 0) + index * GOLDEN_ANGLE) % 360;
   const harmony = harmonies[(index * 3) % harmonies.length];
   const style = styles[(index - 1) % styles.length];
   const plate = plates[(index * 5) % plates.length];
@@ -156,6 +158,7 @@ export function buildManifest(icons, options = {}) {
     seed,
     size = SIZE,
     generatedAt,
+    arrangement = "positional",
     styles = STYLES,
     harmonies = HARMONIES,
     plates = PLATES,
@@ -165,6 +168,7 @@ export function buildManifest(icons, options = {}) {
     name,
     generatedAt: generatedAt ?? new Date().toISOString().replace(/\.\d{3}Z$/, "Z"),
     seed,
+    arrangement,
     count: icons.length,
     size,
     sprite: "/icons.svg",
@@ -189,14 +193,34 @@ export function buildManifest(icons, options = {}) {
  * @returns `{ sprite, manifest, icons }`
  */
 export function generateSprite(options = {}) {
-  const { count = DEFAULT_COUNT, size = SIZE, generatedAt, seed, name } = options;
+  const {
+    count = DEFAULT_COUNT,
+    size = SIZE,
+    generatedAt,
+    seed,
+    name,
+    arrangement = "positional",
+  } = options;
   if (!Number.isInteger(count) || count < 1) {
     throw new Error("count must be >= 1");
   }
 
   const resolvedSize = resolveSize(size);
   const resolvedSeed = resolveSeed(seed);
-  const catalogue = resolveCatalogue(options);
+  let catalogue = resolveCatalogue(options);
+
+  if (arrangement === "seeded") {
+    // One shuffle per set: cyclic coverage stays intact, but every seed paints
+    // a genuinely different wardrobe and hue rotation.
+    const arr = createRng((resolvedSeed * 7907) & MAX_SEED);
+    catalogue = {
+      ...catalogue,
+      hueBase: Math.round(arr.uniform(0, 360)),
+      styles: arr.shuffle([...catalogue.styles]),
+      harmonies: arr.shuffle([...catalogue.harmonies]),
+      plates: arr.shuffle([...catalogue.plates]),
+    };
+  }
   const icons = Array.from({ length: count }, (_, i) =>
     renderIcon(i + 1, resolvedSeed, resolvedSize, catalogue),
   );
@@ -208,7 +232,10 @@ export function generateSprite(options = {}) {
       seed: resolvedSeed,
       size: resolvedSize,
       generatedAt,
-      ...catalogue,
+      arrangement,
+      styles: catalogue.styles,
+      harmonies: catalogue.harmonies,
+      plates: catalogue.plates,
     }),
     icons,
   };

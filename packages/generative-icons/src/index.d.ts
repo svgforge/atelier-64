@@ -8,7 +8,9 @@ export type Harmony =
   | "tetradic"
   | "square"
   | "monochromatic"
-  | "compound";
+  | "compound"
+  | "achromatic"
+  | "duotone";
 
 export type Plate =
   "roundrect" | "circle" | "squircle" | "hex" | "diamond" | "octagon" | "soft-square" | "none";
@@ -34,6 +36,8 @@ export interface SpriteManifest {
   generatedAt: string;
   /** The seed that was actually used — for `"random"`, the rolled value. */
   seed: number;
+  /** How motifs were assigned: positionally or reshuffled by the seed. */
+  arrangement: Arrangement;
   count: number;
   size: number;
   sprite: string;
@@ -53,9 +57,17 @@ export interface Catalogue {
   plates?: Plate[];
 }
 
+export type Arrangement = "positional" | "seeded";
+
 export interface GenerateOptions extends Catalogue {
   /** Name reported in the manifest. Default "Generative Icons". */
   name?: string;
+  /**
+   * How style, harmony and plate are assigned. `"positional"` ties them to the
+   * icon index (stable across seeds); `"seeded"` shuffles the catalogue per
+   * seed, so every seed paints a genuinely different set. Default positional.
+   */
+  arrangement?: Arrangement;
   /** Number of icons. Default 128. */
   count?: number;
   /**
@@ -80,6 +92,7 @@ export interface GenerateOptions extends Catalogue {
 export interface BuildManifestOptions extends Catalogue {
   /** Name reported in the manifest. Default "Generative Icons". */
   name?: string;
+  arrangement?: Arrangement;
   seed: number;
   size?: number;
   generatedAt?: string;

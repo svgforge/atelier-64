@@ -794,6 +794,135 @@ export function genSun(ctx) {
   return bits.join("");
 }
 
+export function genAurora(ctx) {
+  // Geschichtete, transparente Boegen, gegeneinander versetzt.
+  const bits = [];
+  const n = ctx.choice([3, 4]);
+  const colors = [ctx.pal.body, ctx.pal.accent, ctx.pal.highlight, ctx.pal.muted];
+  const tilt = ctx.u(-14, 14);
+  for (let i = 0; i < n; i++) {
+    const r = ctx.u(20, 30);
+    const lift = 18 + i * 11 + ctx.u(-2, 3);
+    bits.push(
+      path(
+        `M${nfmt(CX - r)} ${nfmt(lift)} A${nfmt(r)} ${nfmt(r)} 0 0 1 ${nfmt(CX + r)} ${nfmt(lift)}`,
+        roundJoin({
+          fill: "none",
+          stroke: colors[i % colors.length],
+          stroke_width: nfmt(ctx.u(3, 5)),
+          opacity: nfmt(1 - i * 0.14),
+          transform: `rotate(${nfmt(tilt)} ${CX} ${CY})`,
+        }),
+      ),
+    );
+  }
+  bits.push(circle(CX, CY, ctx.u(4, 6), { fill: ctx.pal.highlight }));
+  return bits.join("");
+}
+
+export function genDunes(ctx) {
+  const bits = [];
+  const bands = ctx.i(3, 4);
+  const colors = [ctx.pal.body, ctx.pal.accent, ctx.pal.muted, ctx.pal.highlight];
+  for (let i = 0; i < bands; i++) {
+    const y = 18 + i * 11 + ctx.u(-3, 3);
+    bits.push(
+      path(
+        `M6 ${nfmt(y)} C 20 ${nfmt(y - ctx.u(5, 10))}, 42 ${nfmt(y + ctx.u(3, 8))}, 58 ${nfmt(y)}`,
+        roundJoin({
+          fill: "none",
+          stroke: colors[i % colors.length],
+          stroke_width: nfmt(ctx.u(3, 4.6)),
+        }),
+      ),
+    );
+  }
+  bits.push(
+    circle(CX + ctx.u(-9, 9), 13, ctx.u(3.2, 5), { fill: ctx.pal.highlight, opacity: "0.9" }),
+  );
+  return bits.join("");
+}
+
+export function genTrellis(ctx) {
+  // Gesamt sechs Diagonalen, das Clip kauteszt sie auf die Platte.
+  const bits = [rect(12, 12, 40, 40, { rx: 3, fill: ctx.pal.muted, opacity: "0.90" })];
+  const step = ctx.choice([10, 13, 16]);
+  for (let o = -64; o <= 64; o += step) {
+    bits.push(
+      line(o, 64, o + 64, 0, roundJoin({ fill: "none", stroke: ctx.pal.body, stroke_width: "2" })),
+    );
+    bits.push(
+      line(
+        o,
+        0,
+        o + 64,
+        64,
+        roundJoin({ fill: "none", stroke: ctx.pal.accent, stroke_width: "1.4", opacity: "0.8" }),
+      ),
+    );
+  }
+  bits.push(polygon(starPts(CX, CY, 4, 8, 3.2, -90), { fill: ctx.pal.highlight }));
+  return bits.join("");
+}
+
+export function genPrism(ctx) {
+  const bits = [];
+  const n = ctx.i(3, 5);
+  for (let i = 0; i < n; i++) {
+    const r = 20 - i * (13 / n);
+    const cy = 44 - i * (28 / n);
+    bits.push(
+      polygon(regularPoly(CX, cy, 3, r, -90), {
+        fill: [ctx.pal.body, ctx.pal.accent, ctx.pal.muted][i % 3],
+        stroke: ctx.pal.ink,
+        stroke_width: "0.8",
+      }),
+    );
+  }
+  bits.push(circle(CX, CY, 2.6, { fill: ctx.pal.highlight }));
+  return bits.join("");
+}
+
+export function genLotus(ctx) {
+  const bits = [];
+  const n = ctx.choice([5, 7]);
+  for (let i = 0; i < n; i++) {
+    const a = -90 + (i - (n - 1) / 2) * 24 + ctx.u(-3, 3);
+    const [px, py] = polar(CX, CY, ctx.u(10, 14), a);
+    bits.push(
+      ellipse(px, py, 3.4, 10, {
+        fill: i % 2 === 0 ? ctx.pal.body : ctx.pal.accent,
+        opacity: "0.94",
+        transform: `rotate(${nfmt(a + 90)} ${nfmt(px)} ${nfmt(py)})`,
+      }),
+    );
+  }
+  bits.push(circle(CX, CY, 5, { fill: ctx.pal.highlight }));
+  bits.push(circle(CX, CY, 2, { fill: ctx.pal.ink }));
+  return bits.join("");
+}
+
+export function genCube(ctx) {
+  const r = ctx.u(15, 19);
+  const v = regularPoly(CX, CY, 6, r, -90);
+  const c = [CX, CY];
+  const faces = [
+    { pts: [v[0], v[1], c, v[5]], fill: ctx.pal.highlight },
+    { pts: [v[1], v[2], v[3], c], fill: ctx.pal.accent },
+    { pts: [v[3], v[4], v[5], c], fill: ctx.pal.muted },
+  ];
+  const bits = faces.map((f) =>
+    polygon(f.pts, {
+      fill: f.fill,
+      stroke: ctx.pal.ink,
+      stroke_width: "0.8",
+      stroke_linejoin: "round",
+    }),
+  );
+  bits.push(circle(CX, CY, 2, { fill: ctx.pal.highlight, opacity: "0.6" }));
+  return bits.join("");
+}
+
 /**
  * Style registry. Order matters — see the note at the top of this file.
  */
@@ -827,4 +956,10 @@ export const MOTIFS = {
   asterisk: genAsterisk,
   labyrinth: genLabyrinth,
   sun: genSun,
+  aurora: genAurora,
+  dunes: genDunes,
+  trellis: genTrellis,
+  prism: genPrism,
+  lotus: genLotus,
+  cube: genCube,
 };

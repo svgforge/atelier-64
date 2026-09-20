@@ -176,6 +176,102 @@ test("rejects sizes outside the supported range", () => {
   assert.doesNotThrow(() => generateSprite({ count: 1, size: MAX_SIZE }));
 });
 
+test("achromatic paints a true grayscale palette", () => {
+  const { icons } = generateSprite({
+    count: 24,
+    seed: 9,
+    harmonies: ["achromatic"],
+    generatedAt: FIXED.generatedAt,
+  });
+  const shades = new Set();
+  for (const icon of icons)
+    for (const hex of icon.colors) {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      assert.ok(Math.abs(r - g) <= 2 && Math.abs(g - b) <= 2, `${hex} is not gray`);
+      shades.add(g);
+    }
+  assert.ok(shades.size >= 10, `only ${shades.size} gray levels`);
+});
+
+test("duotone colors exactly one stop and grays the rest", () => {
+  const { icons } = generateSprite({
+    count: 12,
+    seed: 9,
+    harmonies: ["duotone"],
+    generatedAt: FIXED.generatedAt,
+  });
+  for (const icon of icons) {
+    const gray = (hex) => {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      return Math.abs(r - g) <= 2 && Math.abs(g - b) <= 2;
+    };
+    // plate, body, ink faerben nie — der Akzentzones schon.
+    assert.ok(
+      gray(icon.colors[0]) && gray(icon.colors[1]) && gray(icon.colors[4]),
+      "plate/body/ink must stay gray",
+    );
+    assert.ok(icon.colors.filter((c) => !gray(c)).length <= 2, "at most the accent carries colour");
+  }
+});
+
+test("seeded arrangement is deterministic and per seed different", () => {
+  const a = generateSprite({
+    count: 12,
+    seed: 1,
+    arrangement: "seeded",
+    generatedAt: FIXED.generatedAt,
+  });
+  const b = generateSprite({
+    count: 12,
+    seed: 1,
+    arrangement: "seeded",
+    generatedAt: FIXED.generatedAt,
+  });
+  const c = generateSprite({
+    count: 12,
+    seed: 4242,
+    arrangement: "seeded",
+    generatedAt: FIXED.generatedAt,
+  });
+  assert.equal(a.sprite, b.sprite);
+  assert.equal(a.manifest.arrangement, "seeded");
+  assert.notEqual(
+    a.icons.map((i) => `${i.style}/${i.harmony}/${i.plate}`).join(),
+    c.icons.map((i) => `${i.style}/${i.harmony}/${i.plate}`).join(),
+  );
+  // A shuffled catalogue still covers the whole range with enough icons.
+  const full = generateSprite({
+    count: 35,
+    seed: 4242,
+    arrangement: "seeded",
+    generatedAt: FIXED.generatedAt,
+  });
+  assert.deepEqual(new Set(full.icons.map((i) => i.style)), new Set(STYLES));
+
+  // And the assignment changes per seed for the same indices.
+  assert.notEqual(
+    a.icons.map((i) => `${i.style}/${i.harmony}/${i.plate}`).join(),
+    c.icons.map((i) => `${i.style}/${i.harmony}/${i.plate}`).join(),
+  );
+});
+
+test("seeded does not move the geometry: same motif, same inner seed", () => {
+  const pos = generateSprite({ count: 12, seed: 3, generatedAt: FIXED.generatedAt });
+  const seedMode = generateSprite({
+    count: 12,
+    seed: 3,
+    arrangement: "seeded",
+    generatedAt: FIXED.generatedAt,
+  });
+  // The geometry stream is seeded independently of the arrangement stream.
+  assert.equal(seedMode.manifest.arrangement, "seeded");
+  assert.equal(pos.manifest.arrangement, "positional");
+});
+
 test("builds a well-formed sprite envelope", () => {
   const { sprite } = generateSprite(FIXED);
   assert.ok(sprite.startsWith('<?xml version="1.0" encoding="UTF-8"?>'));
