@@ -34,11 +34,13 @@ jobs:
         env:
           NITRO_PRESET: cloudflare_module
 
+      # Deliberately not cloudflare/wrangler-action: it installs wrangler with
+      # this project's package manager, and pnpm refuses the install scripts of
+      # its esbuild/workerd dependencies (ERR_PNPM_IGNORED_BUILDS). npm does not
+      # block them, so npx gets us a working wrangler without loosening pnpm's
+      # supply-chain policy.
       - name: Deploy
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "4"
-          # Nitro writes the config next to the server bundle.
-          command: deploy --config .output/server/wrangler.json
+        run: npx --yes wrangler@4 deploy --config .output/server/wrangler.json
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
