@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       # Fail fast with a readable message instead of a cryptic wrangler error,
       # and prove the token actually works before spending time on the build.
@@ -32,18 +32,17 @@ jobs:
           fi
           npx --yes wrangler@4 whoami
 
-      # Pinned to the version that generated pnpm-lock.yaml, so
-      # `--frozen-lockfile` is guaranteed to pass.
-      - name: Install pnpm
-        run: npm install -g pnpm@12.5.1
-
-      - uses: actions/setup-node@v6
+      # One step for pnpm and Node.js: installs the latest pnpm 12 (the major
+      # that wrote pnpm-lock.yaml), puts Node.js 22 on PATH, restores the pnpm
+      # store keyed on the lockfile, and runs the install itself.
+      # `require-lockfile` makes that install `--frozen-lockfile`, so a stale
+      # or missing lockfile fails here instead of resolving fresh versions.
+      - uses: pnpm/setup@v3
         with:
-          node-version: "22"
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+          version: ^12.0.0
+          runtime: node@22
+          cache: true
+          require-lockfile: true
 
       # Vercel stays the default target; this build is for Cloudflare.
       - name: Build
